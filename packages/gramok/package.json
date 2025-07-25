@@ -1,0 +1,16 @@
+{
+  "name": "gramok",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Mock implementation of Telegram Bot API to test your bots.",
+  "author": "Vladislav Deryabkin",
+  "license": "MIT",
+  "homepage": "https://github.com/evermake/gramok",
+  "peerDependencies": {
+    "@faker-js/faker": ">=9.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "typescript": "^5.8.3"
+  }
+}

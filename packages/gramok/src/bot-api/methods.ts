@@ -1,0 +1,205 @@
+import type { BotApi } from '.'
+import type { MaybePromise } from '../utils/types'
+
+/**
+ * Result of processing an incoming query.
+ *
+ * @see https://core.telegram.org/bots/api#making-requests
+ * @see https://github.com/tdlib/telegram-bot-api/blob/2e1fb0330c93a014f723f5b5d8befe9dc9fc1b7d/telegram-bot-api/Query.h
+ */
+export type QueryResult = QueryResultOk | QueryResultError
+
+export interface QueryResultOk {
+  ok: true
+  result: unknown
+  description?: string
+}
+
+export interface QueryResultError {
+  ok: false
+  error_code: number
+  description: string
+  parameters?: {
+    migrate_to_chat_id?: number
+    retry_after?: number
+  }
+}
+
+export type BotApiMethod = (
+  this: BotApi,
+  bot: 'todo',
+  params: 'todo',
+) => MaybePromise<QueryResult>
+
+/**
+ * For the full list of methods refer to the {@link https://core.telegram.org/bots/api docs} or {@link https://github.com/tdlib/telegram-bot-api/blob/master/telegram-bot-api/Client.cpp implementation}.
+ */
+export const METHODS: Record<string, BotApiMethod> = {
+  getme: notImplemented,
+  getmycommands: notImplemented,
+  setmycommands: notImplemented,
+  deletemycommands: notImplemented,
+  getmydefaultadministratorrights: notImplemented,
+  setmydefaultadministratorrights: notImplemented,
+  getmyname: notImplemented,
+  setmyname: notImplemented,
+  getmydescription: notImplemented,
+  setmydescription: notImplemented,
+  getmyshortdescription: notImplemented,
+  setmyshortdescription: notImplemented,
+  getchatmenubutton: notImplemented,
+  setchatmenubutton: notImplemented,
+  getuserprofilephotos: notImplemented,
+  sendmessage: notImplemented,
+  sendanimation: notImplemented,
+  sendaudio: notImplemented,
+  senddice: notImplemented,
+  senddocument: notImplemented,
+  sendphoto: notImplemented,
+  sendsticker: notImplemented,
+  sendvideo: notImplemented,
+  sendvideonote: notImplemented,
+  sendvoice: notImplemented,
+  sendpaidmedia: notImplemented,
+  sendgame: notImplemented,
+  sendinvoice: notImplemented,
+  sendlocation: notImplemented,
+  sendvenue: notImplemented,
+  sendcontact: notImplemented,
+  sendpoll: notImplemented,
+  stoppoll: notImplemented,
+  sendchecklist: notImplemented,
+  copymessage: notImplemented,
+  copymessages: notImplemented,
+  forwardmessage: notImplemented,
+  forwardmessages: notImplemented,
+  sendmediagroup: notImplemented,
+  sendchataction: notImplemented,
+  setmessagereaction: notImplemented,
+  editmessagetext: notImplemented,
+  editmessagelivelocation: notImplemented,
+  stopmessagelivelocation: notImplemented,
+  editmessagemedia: notImplemented,
+  editmessagecaption: notImplemented,
+  editmessagechecklist: notImplemented,
+  editmessagereplymarkup: notImplemented,
+  deletemessage: notImplemented,
+  deletemessages: notImplemented,
+  poststory: notImplemented,
+  editstory: notImplemented,
+  deletestory: notImplemented,
+  createinvoicelink: notImplemented,
+  getmystarbalance: notImplemented,
+  getstartransactions: notImplemented,
+  refundstarpayment: notImplemented,
+  edituserstarsubscription: notImplemented,
+  getavailablegifts: notImplemented,
+  sendgift: notImplemented,
+  giftpremiumsubscription: notImplemented,
+  verifyuser: notImplemented,
+  verifychat: notImplemented,
+  removeuserverification: notImplemented,
+  removechatverification: notImplemented,
+  setgamescore: notImplemented,
+  getgamehighscores: notImplemented,
+  answerwebappquery: notImplemented,
+  answerinlinequery: notImplemented,
+  savepreparedinlinemessage: notImplemented,
+  answercallbackquery: notImplemented,
+  answershippingquery: notImplemented,
+  answerprecheckoutquery: notImplemented,
+  exportchatinvitelink: notImplemented,
+  createchatinvitelink: notImplemented,
+  createchatsubscriptioninvitelink: notImplemented,
+  editchatinvitelink: notImplemented,
+  editchatsubscriptioninvitelink: notImplemented,
+  revokechatinvitelink: notImplemented,
+  getbusinessconnection: notImplemented,
+  readbusinessmessage: notImplemented,
+  deletebusinessmessages: notImplemented,
+  setbusinessaccountname: notImplemented,
+  setbusinessaccountusername: notImplemented,
+  setbusinessaccountbio: notImplemented,
+  setbusinessaccountprofilephoto: notImplemented,
+  removebusinessaccountprofilephoto: notImplemented,
+  setbusinessaccountgiftsettings: notImplemented,
+  getbusinessaccountstarbalance: notImplemented,
+  transferbusinessaccountstars: notImplemented,
+  getbusinessaccountgifts: notImplemented,
+  convertgifttostars: notImplemented,
+  upgradegift: notImplemented,
+  transfergift: notImplemented,
+  setuseremojistatus: notImplemented,
+  getchat: notImplemented,
+  setchatphoto: notImplemented,
+  deletechatphoto: notImplemented,
+  setchattitle: notImplemented,
+  setchatpermissions: notImplemented,
+  setchatdescription: notImplemented,
+  pinchatmessage: notImplemented,
+  unpinchatmessage: notImplemented,
+  unpinallchatmessages: notImplemented,
+  setchatstickerset: notImplemented,
+  deletechatstickerset: notImplemented,
+  getforumtopiciconstickers: notImplemented,
+  createforumtopic: notImplemented,
+  editforumtopic: notImplemented,
+  closeforumtopic: notImplemented,
+  reopenforumtopic: notImplemented,
+  deleteforumtopic: notImplemented,
+  unpinallforumtopicmessages: notImplemented,
+  editgeneralforumtopic: notImplemented,
+  closegeneralforumtopic: notImplemented,
+  reopengeneralforumtopic: notImplemented,
+  hidegeneralforumtopic: notImplemented,
+  unhidegeneralforumtopic: notImplemented,
+  unpinallgeneralforumtopicmessages: notImplemented,
+  getchatmember: notImplemented,
+  getchatadministrators: notImplemented,
+  getchatmembercount: notImplemented,
+  getchatmemberscount: notImplemented,
+  leavechat: notImplemented,
+  promotechatmember: notImplemented,
+  setchatadministratorcustomtitle: notImplemented,
+  banchatmember: notImplemented,
+  kickchatmember: notImplemented,
+  restrictchatmember: notImplemented,
+  unbanchatmember: notImplemented,
+  banchatsenderchat: notImplemented,
+  unbanchatsenderchat: notImplemented,
+  approvechatjoinrequest: notImplemented,
+  declinechatjoinrequest: notImplemented,
+  getuserchatboosts: notImplemented,
+  getstickerset: notImplemented,
+  getcustomemojistickers: notImplemented,
+  uploadstickerfile: notImplemented,
+  createnewstickerset: notImplemented,
+  addstickertoset: notImplemented,
+  replacestickerinset: notImplemented,
+  setstickersettitle: notImplemented,
+  setstickersetthumb: notImplemented,
+  setstickersetthumbnail: notImplemented,
+  setcustomemojistickersetthumbnail: notImplemented,
+  deletestickerset: notImplemented,
+  setstickerpositioninset: notImplemented,
+  deletestickerfromset: notImplemented,
+  setstickeremojilist: notImplemented,
+  setstickerkeywords: notImplemented,
+  setstickermaskposition: notImplemented,
+  setpassportdataerrors: notImplemented,
+  sendcustomrequest: notImplemented,
+  answercustomquery: notImplemented,
+  getupdates: notImplemented,
+  setwebhook: notImplemented,
+  deletewebhook: notImplemented,
+  getwebhookinfo: notImplemented,
+  getfile: notImplemented,
+}
+
+function notImplemented(): QueryResultError {
+  return {
+    ok: false,
+    error_code: 501,
+    description: 'not yet implemented by gramok',
+  }
+}
