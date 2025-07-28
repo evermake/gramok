@@ -9,7 +9,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "deps": "taze -wI"
+    "typecheck": "tsc --build",
+    "deps": "taze -wIr"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.0.0",

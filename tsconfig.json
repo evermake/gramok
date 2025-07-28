@@ -1,0 +1,6 @@
+{
+  "references": [
+    { "path": "./packages/gramok/tsconfig.json" }
+  ],
+  "files": []
+}

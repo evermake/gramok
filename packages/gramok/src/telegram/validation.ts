@@ -1,9 +1,21 @@
 /* eslint-disable regexp/prefer-w */
 /* eslint-disable unicorn/prefer-string-starts-ends-with */
 
+import { USERNAME_MAX_SIZE, USERNAME_MIN_SIZE } from './constants'
+
 export type ValidationResult
   = | { ok: true }
     | { ok: false, message: string }
+
+export function validateUserId(id: number): ValidationResult {
+  if (!Number.isSafeInteger(id)) {
+    return { ok: false, message: 'user ID is not a safe integer' }
+  }
+  if (id <= 0) {
+    return { ok: false, message: 'user ID must be positive' }
+  }
+  return { ok: true }
+}
 
 /**
  * Validates that a given string is a valid Telegram username.
@@ -29,13 +41,12 @@ export function validateUsername(username: string): ValidationResult {
     return { ok: false, message: 'username cannot contain consecutive underscores' }
   }
 
-  // Collectible usernames can be of length 4, regular of length 5.
-  if (username.length < 4) {
-    return { ok: false, message: 'username is too short (min 4 characters)' }
+  if (username.length < USERNAME_MIN_SIZE) {
+    return { ok: false, message: `username is too short (min ${USERNAME_MIN_SIZE} characters)` }
   }
 
-  if (username.length > 32) {
-    return { ok: false, message: 'username is too long (max 32 characters)' }
+  if (username.length > USERNAME_MAX_SIZE) {
+    return { ok: false, message: `username is too long (max ${USERNAME_MAX_SIZE} characters)` }
   }
 
   return { ok: true }
@@ -53,4 +64,10 @@ export function validateBotUsername(username: string): ValidationResult {
     return { ok: false, message: 'bot username must end with "bot"' }
   }
   return { ok: true }
+}
+
+export function checkOk(result: ValidationResult): void {
+  if (!result.ok) {
+    throw new Error(`Validation failed: ${result.message}`)
+  }
 }

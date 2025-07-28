@@ -6,10 +6,8 @@
   "author": "Vladislav Deryabkin",
   "license": "MIT",
   "homepage": "https://github.com/evermake/gramok",
-  "peerDependencies": {
-    "@faker-js/faker": ">=9.9.0"
-  },
   "devDependencies": {
+    "@grammyjs/types": "^3.21.0",
     "@types/node": "^22.16.5",
     "typescript": "^5.8.3"
   }

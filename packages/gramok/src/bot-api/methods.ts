@@ -1,41 +1,54 @@
-import type { BotApi } from '.'
+import type { UserFromGetMe } from '@grammyjs/types'
 import type { MaybePromise } from '../utils/types'
+import type { Query, QueryResult, QueryResultError } from './query'
+import { sleep } from '../utils/promises'
+import { LONG_POLL_MAX_TIMEOUT } from './constants'
+import { queryOk } from './query'
+
+export type BotApiMethod = (query: Query) => MaybePromise<QueryResult>
 
 /**
- * Result of processing an incoming query.
- *
- * @see https://core.telegram.org/bots/api#making-requests
- * @see https://github.com/tdlib/telegram-bot-api/blob/2e1fb0330c93a014f723f5b5d8befe9dc9fc1b7d/telegram-bot-api/Query.h
- */
-export type QueryResult = QueryResultOk | QueryResultError
-
-export interface QueryResultOk {
-  ok: true
-  result: unknown
-  description?: string
-}
-
-export interface QueryResultError {
-  ok: false
-  error_code: number
-  description: string
-  parameters?: {
-    migrate_to_chat_id?: number
-    retry_after?: number
-  }
-}
-
-export type BotApiMethod = (
-  this: BotApi,
-  bot: 'todo',
-  params: 'todo',
-) => MaybePromise<QueryResult>
-
-/**
- * For the full list of methods refer to the {@link https://core.telegram.org/bots/api docs} or {@link https://github.com/tdlib/telegram-bot-api/blob/master/telegram-bot-api/Client.cpp implementation}.
+ * For the full list of methods refer to the {@link https://core.telegram.org/bots/api docs} and their {@link https://github.com/tdlib/telegram-bot-api/blob/master/telegram-bot-api/Client.cpp implementation}.
  */
 export const METHODS: Record<string, BotApiMethod> = {
-  getme: notImplemented,
+  async getupdates(query) {
+    const offset = query.getIntegerArg('offset', 0)
+    const limit = query.getIntegerArg('limit', 100, 1, 100)
+    const timeout = query.getIntegerArg('timeout', 0, 0, LONG_POLL_MAX_TIMEOUT)
+    query.updateAllowedUpdateTypes()
+    await Promise.race([
+      sleep(timeout),
+      query.bot.updates.waitForNonEmpty(),
+    ])
+    const updates = query.bot.updates.consumeUpdates({ offset, limit })
+    return queryOk(updates)
+  },
+
+  async getme(query) {
+    const meData = query.tg.db.getUserById(query.bot.id)
+    if (!meData?.isBot) {
+      throw new Error('bot is not a bot')
+    }
+    if (!meData.username) {
+      throw new Error('bot doesn\'t have a username')
+    }
+    const me: UserFromGetMe = {
+      id: query.bot.id,
+      is_bot: true,
+      first_name: meData.firstName ?? '',
+      last_name: meData.lastName,
+      username: meData.username,
+      is_premium: meData.isPremium || undefined,
+      added_to_attachment_menu: undefined, // todo
+      can_join_groups: true, // todo
+      can_read_all_group_messages: false, // todo
+      supports_inline_queries: false, // todo
+      can_connect_to_business: false, // todo
+      has_main_web_app: false, // todo
+    }
+    return queryOk(me)
+  },
+
   getmycommands: notImplemented,
   setmycommands: notImplemented,
   deletemycommands: notImplemented,
@@ -189,11 +202,12 @@ export const METHODS: Record<string, BotApiMethod> = {
   setpassportdataerrors: notImplemented,
   sendcustomrequest: notImplemented,
   answercustomquery: notImplemented,
-  getupdates: notImplemented,
   setwebhook: notImplemented,
   deletewebhook: notImplemented,
   getwebhookinfo: notImplemented,
   getfile: notImplemented,
+  logout: notImplemented,
+  close: notImplemented,
 }
 
 function notImplemented(): QueryResultError {
