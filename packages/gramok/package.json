@@ -6,9 +6,13 @@
   "author": "Vladislav Deryabkin",
   "license": "MIT",
   "homepage": "https://github.com/evermake/gramok",
+  "scripts": {
+    "build": "tsdown -c ./tsdown.config.ts"
+  },
   "devDependencies": {
     "@grammyjs/types": "^3.21.0",
     "@types/node": "^22.16.5",
+    "tsdown": "^0.13.0",
     "typescript": "^5.8.3"
   }
 }
