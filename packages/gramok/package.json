@@ -6,6 +6,11 @@
   "author": "Vladislav Deryabkin",
   "license": "MIT",
   "homepage": "https://github.com/evermake/gramok",
+  "repository": {
+    "type": "git",
+    "directory": "packages/gramok",
+    "url": "https://github.com/evermake/gramok"
+  },
   "scripts": {
     "build": "tsdown -c ./tsdown.config.ts"
   },
