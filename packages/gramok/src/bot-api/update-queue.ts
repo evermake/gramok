@@ -17,6 +17,10 @@ export class UpdateQueue {
     this.allowedUpdateTypes = DEFAULT_ALLOWED_UPDATE_TYPES.slice()
   }
 
+  public clear() {
+    this.pendingUpdates.length = 0
+  }
+
   public enqueue(...updates: InputUpdate[]) {
     this.pendingUpdates.push(
       ...updates

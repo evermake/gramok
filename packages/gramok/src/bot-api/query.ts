@@ -37,6 +37,11 @@ export class Query {
     return clamp(value, minValue, maxValue)
   }
 
+  public getBoolArg(fieldName: string) {
+    const value = this.arg(fieldName).toLowerCase().trim()
+    return value === 'true' || value === 'yes' || value === '1'
+  }
+
   /**
    * @see {@link https://github.com/tdlib/telegram-bot-api/blob/master/telegram-bot-api/Client.cpp Client::update_allowed_update_types}
    */

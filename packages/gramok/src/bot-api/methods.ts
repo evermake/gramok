@@ -49,6 +49,18 @@ export const METHODS: Record<string, BotApiMethod> = {
     return queryOk(me)
   },
 
+  setwebhook: notImplemented,
+  deletewebhook: (query) => {
+    // todo: implement webhooks and check their status here
+    const dropPendingUpdates = query.getBoolArg('drop_pending_updates')
+    if (dropPendingUpdates) {
+      query.bot.updates.clear()
+    }
+    return queryOk(true)
+  },
+  getwebhookinfo: notImplemented,
+  logout: notImplemented,
+  close: notImplemented,
   getmycommands: notImplemented,
   setmycommands: notImplemented,
   deletemycommands: notImplemented,
@@ -202,12 +214,7 @@ export const METHODS: Record<string, BotApiMethod> = {
   setpassportdataerrors: notImplemented,
   sendcustomrequest: notImplemented,
   answercustomquery: notImplemented,
-  setwebhook: notImplemented,
-  deletewebhook: notImplemented,
-  getwebhookinfo: notImplemented,
   getfile: notImplemented,
-  logout: notImplemented,
-  close: notImplemented,
 }
 
 function notImplemented(): QueryResultError {
