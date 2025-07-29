@@ -1,7 +1,7 @@
 {
   "name": "@evermake/gramok",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Mock implementation of Telegram Bot API to test your bots.",
   "author": "Vladislav Deryabkin",
   "license": "MIT",
