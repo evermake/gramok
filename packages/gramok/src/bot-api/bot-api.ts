@@ -33,12 +33,9 @@ export class BotApi {
     }
 
     const { promise, resolve, reject } = Promise.withResolvers<void>()
-    const onError = (error: unknown) => {
-      reject(error)
-    }
-    this.#server.once('error', onError)
+    this.#server.once('error', reject)
     this.#server.listen({ port: options.port }, () => {
-      this.#server.off('error', onError)
+      this.#server.off('error', reject)
       resolve()
     })
     return promise
@@ -65,11 +62,9 @@ export class BotApi {
       return
     }
 
-    /**
-     * - `/bot` part is required and case-sensitive.
-     * - Token must be in form "<integer>:<string>" (see https://github.com/tdlib/telegram-bot-api/blob/2e1fb0330c93a014f723f5b5d8befe9dc9fc1b7d/telegram-bot-api/ClientManager.cpp#L67).
-     * - Adding trailing slash at the end produces 404.
-     */
+    // 1. `/bot` part is required and case-sensitive
+    // 2. token must be in form "<integer>:<string>" (see ClientManager::send at https://github.com/tdlib/telegram-bot-api/blob/master/telegram-bot-api/ClientManager.cpp)
+    // 3. adding trailing slash at the end produces 404
     const PATH_REGEX = /^\/bot(?<token1>\d+):(?<token2>[\w\-]+)\/(?<method>\w+)$/
 
     const url = parseUrl(req.url)
@@ -172,8 +167,6 @@ function failQuery(res: http.ServerResponse, statusCode: number, description?: s
  * {@link https://github.com/tdlib/telegram-bot-api/blob/master/telegram-bot-api/Query.cpp telegram_bot_api::Query}
  * gets them directly from the
  * {@link https://github.com/tdlib/td/blob/master/tdnet/td/net/HttpReader.cpp td::HttpReader}.
- *
- * @throws ResultError
  */
 async function parseParams(req: http.IncomingMessage): Promise<Result<Map<string, string>>> {
   const params: [string, string][] = []

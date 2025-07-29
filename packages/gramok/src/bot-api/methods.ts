@@ -1,6 +1,6 @@
-import type { UserFromGetMe } from '@grammyjs/types'
 import type { MaybePromise } from '../utils/types'
 import type { Query, QueryResult, QueryResultError } from './query'
+import type { UserFromGetMe } from './types'
 import { sleep } from '../utils/promises'
 import { LONG_POLL_MAX_TIMEOUT } from './constants'
 import { queryOk } from './query'

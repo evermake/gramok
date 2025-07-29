@@ -89,6 +89,9 @@ export class Bot {
     public readonly id: number,
   ) {}
 
+  /**
+   * Returns the bot's token to authorize requests to {@link BotApi Bot API}.
+   */
   public get token(): string {
     const secret = this.tg.db.botSecrets.get(this.id)
     if (!secret) {
