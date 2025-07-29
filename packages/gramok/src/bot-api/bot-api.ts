@@ -97,6 +97,7 @@ export class BotApi {
 
     if (!this.#telegram.checkBotAuth(botId, botSecret)) {
       failQuery(res, 401)
+      return
     }
 
     parseParams(req)
