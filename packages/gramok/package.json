@@ -26,9 +26,6 @@
   "scripts": {
     "build": "tsdown -c ./tsdown.config.ts"
   },
-  "dependencies": {
-    "http-graceful-shutdown": "^3.1.14"
-  },
   "devDependencies": {
     "@grammyjs/types": "^3.21.0",
     "@types/node": "^22.16.5",
