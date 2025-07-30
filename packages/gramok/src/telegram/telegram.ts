@@ -1,6 +1,6 @@
 import type { ChatId } from './chat'
 import type { TelegramEventMap } from './events'
-import type { ContentMessage } from './message'
+import type { ContentMessage, Message } from './message'
 import type { MessageContent } from './message-content'
 import type { PeerId } from './peer'
 import type { OrRandom } from './random'
@@ -163,6 +163,10 @@ export class PrivateChat {
     this.first = first
     this.second = second
     this.id = chatId
+  }
+
+  public get messages(): Message[] {
+    return this.tg.db.getChat(this.id).messages
   }
 }
 
