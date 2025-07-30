@@ -129,11 +129,11 @@ export class BotApi {
 
   /* ============ Events ============ */
   private registerListeners() {
-    this.#tg.on('newMessage', this.handleNewMessage)
+    this.#tg.on('newMessage', this.handleNewMessage.bind(this))
   }
 
   private unregisterListeners() {
-    this.#tg.off('newMessage', this.handleNewMessage)
+    // todo
   }
 
   private handleNewMessage(message: ContentMessage) {
