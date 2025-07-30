@@ -1,4 +1,5 @@
-import type { Message } from './message'
+import type { ChatId, PrivateChatIdStr } from './chat'
+import type { ContentMessage, Message } from './message'
 import { checkOk, validateBotUsername, validateUserId, validateUsername } from './validation'
 
 /**
@@ -6,7 +7,7 @@ import { checkOk, validateBotUsername, validateUserId, validateUsername } from '
  */
 export class Database {
   private users: UserData[]
-  private privateChats: Map<PrivateChatId, PrivateChatData>
+  private privateChats: Map<PrivateChatIdStr, PrivateChatData>
 
   public readonly botSecrets: Map<number, string>
 
@@ -32,12 +33,43 @@ export class Database {
     return frozen
   }
 
-  public getUserById(id: number): UserData | undefined {
+  public findUserById(id: number): UserData | undefined {
     return this.users.find(user => user.id === id)
+  }
+
+  public findUsernameOwner(username: string): UserData | undefined {
+    return this.users.find(user => user.username === username)
   }
 
   public isUsernameTaken(username: string): boolean {
     return this.usernamesLower().has(username.toLowerCase())
+  }
+
+  public addMessage(message: InputContentMessage): ContentMessage {
+    const now = new Date()
+    const chat = this.getChat(message.chat)
+    const newMessage: ContentMessage = {
+      ...message,
+      id: ++chat.messageIdCounter,
+      date: now,
+    }
+    chat.messages.push(newMessage)
+    return newMessage
+  }
+
+  public getChat(chatId: ChatId): PrivateChatData {
+    if (chatId.type === 'private') {
+      let chat = this.privateChats.get(chatId.toString())
+      if (!chat) {
+        chat = {
+          messageIdCounter: 0,
+          messages: [],
+        }
+        this.privateChats.set(chatId.toString(), chat)
+      }
+      return chat
+    }
+    throw new Error(`chats of type ${chatId.type} are not supported yet`)
   }
 
   private userIds(): Set<number> {
@@ -52,6 +84,8 @@ export class Database {
     )
   }
 }
+
+export type InputContentMessage = Omit<ContentMessage, 'id' | 'date'>
 
 export interface UserData {
   // Basic info (https://core.telegram.org/constructor/user)
@@ -68,12 +102,7 @@ export interface UserData {
   // botInfo: ... TODO
 }
 
-/**
- * String representation of a private chat ID, which is in format:
- * `<user_id_1>:<user_id_2>`, where `user_id_1 <= user_id_2`.
- */
-type PrivateChatId = `${number}:${number}`
-
 export interface PrivateChatData {
+  messageIdCounter: number
   messages: Message[]
 }

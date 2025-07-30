@@ -1,3 +1,3 @@
 export interface FormattedText {
-  text: string
+  plain: string
 }

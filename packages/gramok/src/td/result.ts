@@ -8,20 +8,16 @@
  *   - Throw `ResultError`
  */
 
-export interface Result<T> {
-  isOk: () => this is ResultOk<T>
-  isError: () => this is ResultError
-  unwrap: () => T
-}
+export type Result<T> = ResultOk<T> | ResultError
 
-export class ResultOk<T> implements Result<T> {
+export class ResultOk<T> {
   constructor(public readonly value: T) {}
   isOk(): this is ResultOk<T> { return true }
   isError(): this is ResultError { return false }
   unwrap(): T { return this.value }
 }
 
-export class ResultError extends Error implements Result<any> {
+export class ResultError extends Error {
   public readonly name: string = 'ResultError'
   public readonly message: string
   public readonly code: number | null

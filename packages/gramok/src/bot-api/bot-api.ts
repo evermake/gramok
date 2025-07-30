@@ -1,9 +1,12 @@
 import type { OutgoingHttpHeaders } from 'node:http'
 import type { Result } from '../td/result'
+import type { ContentMessage } from '../telegram/message'
 import type { Telegram } from '../telegram/telegram'
 import type { QueryResult } from './query'
+import type { Message, Update } from './types'
 import http from 'node:http'
 import { ERR, OK, ResultError } from '../td/result'
+import { peerIdToDialogId } from '../telegram/dialogs'
 import { readWholeBody } from '../utils/http'
 import { parseUrl } from '../utils/url'
 import { BotState } from './bot-state'
@@ -17,12 +20,12 @@ import { Query } from './query'
  * - It implements bot updates queuing mechanism.
  */
 export class BotApi {
-  #telegram: Telegram
+  #tg: Telegram
   #server: http.Server
   #bots: Map<number, BotState>
 
   constructor(telegram: Telegram) {
-    this.#telegram = telegram
+    this.#tg = telegram
     this.#server = http.createServer(this.handleHttpRequest.bind(this))
     this.#bots = new Map()
   }
@@ -32,6 +35,7 @@ export class BotApi {
       throw new Error('server has been already started and is listening')
     }
 
+    this.registerListeners()
     const { promise, resolve, reject } = Promise.withResolvers<void>()
     this.#server.once('error', reject)
     this.#server.listen({ port: options.port }, () => {
@@ -42,6 +46,7 @@ export class BotApi {
   }
 
   public async stop() {
+    this.unregisterListeners()
     const { promise, reject, resolve } = Promise.withResolvers<void>()
     this.#server.close((error) => {
       if (error) {
@@ -90,7 +95,7 @@ export class BotApi {
       return
     }
 
-    if (!this.#telegram.checkBotAuth(botId, botSecret)) {
+    if (!this.#tg.checkBotAuth(botId, botSecret)) {
       failQuery(res, 401)
       return
     }
@@ -98,7 +103,7 @@ export class BotApi {
     parseParams(req)
       .then((params) => {
         const bot = this.getBotState(botId)
-        const query = new Query(this.#telegram, bot, params.unwrap())
+        const query = new Query(this.#tg, bot, params.unwrap())
         return method(query)
       })
       .then(result => sendQueryResult(res, result))
@@ -121,6 +126,53 @@ export class BotApi {
     this.#bots.set(botId, bot)
     return bot
   }
+
+  /* ============ Events ============ */
+  private registerListeners() {
+    this.#tg.on('newMessage', this.handleNewMessage)
+  }
+
+  private unregisterListeners() {
+    this.#tg.off('newMessage', this.handleNewMessage)
+  }
+
+  private handleNewMessage(message: ContentMessage) {
+    if (message.chat.type === 'private') {
+      const first = this.#tg.getUserById(message.chat.firstId)!
+      const second = this.#tg.getUserById(message.chat.secondId)!
+      const bot = first.isBot ? first : second.isBot ? second : null
+      const user = first.isBot ? second : first
+      if (bot && message.from.id === user.id) {
+        const botState = this.getBotState(bot.id)
+        botState.updates.enqueue({
+          message: {
+            message_id: message.id,
+            date: message.date.getTime(),
+            chat: {
+              type: 'private',
+              id: peerIdToDialogId(message.from),
+              username: user.username,
+              first_name: user.firstName,
+              last_name: user.lastName,
+            },
+            from: {
+              id: peerIdToDialogId(message.from),
+              is_bot: user.isBot,
+              username: user.username,
+              first_name: user.firstName,
+              last_name: user.lastName,
+              is_premium: user.isPremium || undefined,
+              language_code: user.language,
+              added_to_attachment_menu: undefined, // todo
+            },
+            text: message.content.text.plain,
+            // TODO: other fields
+          } satisfies (Message.TextMessage & Update.NonChannel),
+        })
+      }
+    }
+  }
+  /* ================================ */
 }
 
 function sendQueryResult(res: http.ServerResponse, result: QueryResult) {

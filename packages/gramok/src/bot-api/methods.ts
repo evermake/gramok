@@ -1,6 +1,11 @@
+import type { MessageContent } from '../telegram/message-content'
 import type { MaybePromise } from '../utils/types'
 import type { Query, QueryResult, QueryResultError } from './query'
-import type { UserFromGetMe } from './types'
+import type { Message, UserFromGetMe } from './types'
+import assert from 'node:assert'
+import { error } from '../td/api'
+import { toIntegerSafe } from '../td/misc'
+import { dialogIdToPeerId } from '../telegram/dialogs'
 import { sleep } from '../utils/promises'
 import { LONG_POLL_MAX_TIMEOUT } from './constants'
 import { queryOk } from './query'
@@ -25,7 +30,7 @@ export const METHODS: Record<string, BotApiMethod> = {
   },
 
   async getme(query) {
-    const meData = query.tg.db.getUserById(query.bot.id)
+    const meData = query.tg.db.findUserById(query.bot.id)
     if (!meData?.isBot) {
       throw new Error('bot is not a bot')
     }
@@ -75,7 +80,60 @@ export const METHODS: Record<string, BotApiMethod> = {
   getchatmenubutton: notImplemented,
   setchatmenubutton: notImplemented,
   getuserprofilephotos: notImplemented,
-  sendmessage: notImplemented,
+
+  sendmessage: async (query) => {
+    const inputMessageText = query.getInputMessageText().unwrap()
+    // TODO: implement `Client::do_send_message`
+    return (function doSendMessage() {
+      const chatId = toIntegerSafe(query.arg('chat_id')).unwrap()
+      const peerId = dialogIdToPeerId(chatId)
+      assert(peerId.type === 'user', 'can only send messages to users for now')
+      assert(inputMessageText.text !== null && !(inputMessageText.text instanceof error))
+
+      // TODO: it's better to create a mock-TDLib instance for the bot
+      // that will use td_api methods, and here just pass td types.
+      const content: MessageContent = {
+        type: 'text',
+        text: {
+          plain: inputMessageText.text.text,
+        },
+      }
+      const sentMessage = query.tg.sendMessage(
+        { type: 'user', id: query.bot.id },
+        peerId,
+        content,
+      )
+
+      const user = query.tg.getUserById(peerId.id)!
+      user.assertIsUser()
+
+      const result: Message.TextMessage = {
+        message_id: sentMessage.id,
+        date: sentMessage.date.getTime(),
+        text: sentMessage.content.text.plain,
+        from: {
+          id: chatId,
+          is_bot: user.isBot,
+          is_premium: user.isPremium || undefined,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          username: user.username,
+          language_code: user.language,
+          added_to_attachment_menu: undefined,
+        },
+        chat: {
+          id: chatId,
+          type: 'private',
+          username: user.username,
+          first_name: user.firstName,
+          last_name: user.lastName,
+        },
+      }
+
+      return queryOk(result)
+    })()
+  },
+
   sendanimation: notImplemented,
   sendaudio: notImplemented,
   senddice: notImplemented,
