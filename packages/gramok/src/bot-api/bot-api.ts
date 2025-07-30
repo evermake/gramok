@@ -241,7 +241,7 @@ async function parseParams(req: http.IncomingMessage): Promise<Result<Map<string
       Object
         .entries(parsedJson)
         .forEach(([key, value]) => {
-          params.push([key, JSON.stringify(value)])
+          params.push([key, typeof value === 'string' ? value : JSON.stringify(value)])
         })
     }
     else {
