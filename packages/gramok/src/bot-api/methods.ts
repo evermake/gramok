@@ -83,7 +83,7 @@ export const METHODS: Record<string, BotApiMethod> = {
 
   sendmessage: async (query) => {
     const inputMessageText = query.getInputMessageText().unwrap()
-    // TODO: implement `Client::do_send_message`
+    // TODO: implement `Client::do_send_message` with different types
     return (function doSendMessage() {
       const chatId = toIntegerSafe(query.arg('chat_id')).unwrap()
       const peerId = dialogIdToPeerId(chatId)
@@ -96,6 +96,7 @@ export const METHODS: Record<string, BotApiMethod> = {
         type: 'text',
         text: {
           plain: inputMessageText.text.text,
+          entities: [], // todo
         },
       }
       const sentMessage = query.tg.sendMessage(

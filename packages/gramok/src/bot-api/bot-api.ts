@@ -166,8 +166,14 @@ export class BotApi {
               added_to_attachment_menu: undefined, // todo
             },
             text: message.content.text.plain,
+            entities: message.content.text.entities,
+
             // TODO: other fields
-          } satisfies (Message.TextMessage & Update.NonChannel),
+          } satisfies (
+            Message.TextMessage
+            & Update.NonChannel
+            & Pick<Message, 'entities'> // todo: remove when https://github.com/grammyjs/types/issues/65 is closed
+          ),
         })
       }
     }

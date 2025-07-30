@@ -10,6 +10,7 @@ import { BotApi } from '../bot-api/bot-api'
 import { randBool } from '../utils/random'
 import { PrivateChatId } from './chat'
 import { Database } from './database'
+import { findEntities } from './formatted-text'
 import { randomBio, randomBotSecret, randomBotUsername, randomFirstName, randomLastName, randomUserId, randomUsername, valueOrRandom } from './random'
 
 /**
@@ -131,7 +132,15 @@ export class Telegram {
     const message = this.db.addMessage({
       from: as,
       chat,
-      content,
+      content: {
+        type: content.type,
+        text: {
+          plain: content.text.plain,
+          entities: content.text.entities.length === 0
+            ? findEntities(content.text.plain, false, false)
+            : content.text.entities,
+        },
+      },
     })
     this.ee.emit('newMessage', message)
     return message
