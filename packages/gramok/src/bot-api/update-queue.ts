@@ -8,7 +8,7 @@ export class UpdateQueue {
   private updateIdCounter: number
   private pendingUpdates: Update[]
   private pendingNonEmptyPromise: { promise: Promise<void>, resolve: () => void } | null
-  public allowedUpdateTypes: UpdateType[] = []
+  public allowedUpdateTypes: UpdateType[]
 
   constructor() {
     this.updateIdCounter = 0
@@ -24,7 +24,7 @@ export class UpdateQueue {
   public enqueue(...updates: InputUpdate[]) {
     this.pendingUpdates.push(
       ...updates
-        .filter(this.isUpdateAllowed)
+        .filter(this.isUpdateAllowed.bind(this))
         .map(update => ({
           update_id: ++this.updateIdCounter,
           ...update,
